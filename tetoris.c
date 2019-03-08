@@ -152,6 +152,8 @@ void unsetTetrimino(int baseX, int baseY, int setBuf[TETRIMINO_HEIGHT][TETRIMINO
 int main() {
 	// 画面を初期化
 	initscr();
+	// キー入力を1000ミリ秒で切り上げる(タイムアウトする)
+	timeout(1000);
 
 	// テトリミノのフィールド上の基準位置
 	int x = 0;
