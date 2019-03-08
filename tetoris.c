@@ -1,6 +1,7 @@
 #include <ncurses.h>
 #include <unistd.h>
 #include <time.h>
+#include <assert.h>
 
 // フィールドの高さ(床含む)
 #define FIELD_HEIGHT (21)
@@ -108,6 +109,9 @@ int tetriminos[TETRIMINO_KINDS][TETRIMINO_HEIGHT][TETRIMINO_WIDTH] = {
 	}
 };
 
+// 制御中のテトリミノ
+int inControlTetrimino[TETRIMINO_HEIGHT][TETRIMINO_WIDTH];
+
 // 操作中のテトリミノのフィールド上の基準位置
 int currentTetriminoPositionX = 0;
 int currentTetriminoPositionY = 0;
@@ -189,11 +193,28 @@ void playerOperate(int ch) {
 	}
 }
 
+// 新しいテトリミノを制御中バッファに設定する
+void setNewControlTetrimino(int kind) {
+	assert(0 <= kind && kind <= TETRIMINO_KINDS);
+	for (int h = 0; h < TETRIMINO_HEIGHT; h++) {
+		for (int w = 0; w < TETRIMINO_WIDTH; w++) {
+			inControlTetrimino[h][w] = tetriminos[kind][h][w];
+		}
+	}
+}
+
 int main() {
 	// 画面を初期化
 	initscr();
 	// キー入力を切り上げる時間を設定
 	timeout(KEYINPUT_TIMEOUT_TIME);
+
+	// テトリミノの初期位置を設定
+	currentTetriminoPositionX = FALL_BASE_X;
+	currentTetriminoPositionY = FALL_BASE_Y;
+
+	// 制御中のテトリミノを設定
+	setNewControlTetrimino(0);
 
 	// 入力
 	int ch = 0;
@@ -203,7 +224,7 @@ int main() {
 
 		while (1) {
 			// テトリミノを設定する
-			setTetrimino(FALL_BASE_X + currentTetriminoPositionX, FALL_BASE_Y + currentTetriminoPositionY, tetriminos[0]);
+			setTetrimino(currentTetriminoPositionX, currentTetriminoPositionY, inControlTetrimino);
 		
 			// フィールドを描画する
 			drawField();
@@ -212,7 +233,7 @@ int main() {
 			ch = getch();
 	
 			// テトリミノを取り除く
-			unsetTetrimino(FALL_BASE_X + currentTetriminoPositionX, FALL_BASE_Y + currentTetriminoPositionY, tetriminos[0]);
+			unsetTetrimino(currentTetriminoPositionX, currentTetriminoPositionY, inControlTetrimino);
 	
 			// プレイヤー操作の反映
 			playerOperate(ch);
