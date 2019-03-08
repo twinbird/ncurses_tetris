@@ -102,6 +102,10 @@ int tetriminos[TETRIMINO_KINDS][TETRIMINO_HEIGHT][TETRIMINO_WIDTH] = {
 	}
 };
 
+// 操作中のテトリミノのフィールド上の基準位置
+int currentTetriminoPositionX = 0;
+int currentTetriminoPositionY = 0;
+
 // フィールドを描画する
 void drawField() {
 	int h, w;
@@ -149,21 +153,32 @@ void unsetTetrimino(int baseX, int baseY, int setBuf[TETRIMINO_HEIGHT][TETRIMINO
 	}
 }
 
+// キー入力に応じてプレイヤー操作を行う
+void playerOperate(int ch) {
+	// テトリミノを動かす
+	switch (ch) {
+		// 右移動キー
+		case 'l':
+			currentTetriminoPositionX += 1;
+			break;
+		// 左移動キー
+		case 'h':
+			currentTetriminoPositionX -= 1;
+			break;
+	}
+}
+
 int main() {
 	// 画面を初期化
 	initscr();
 	// キー入力を1000ミリ秒で切り上げる(タイムアウトする)
 	timeout(1000);
 
-	// テトリミノのフィールド上の基準位置
-	int x = 0;
-	int y = 0;
-
 	// 入力
 	int ch = 0;
 	while (ch != 'q') {
 		// テトリミノを設定する
-		setTetrimino(FALL_BASE_X + x, FALL_BASE_Y + y, tetriminos[0]);
+		setTetrimino(FALL_BASE_X + currentTetriminoPositionX, FALL_BASE_Y + currentTetriminoPositionY, tetriminos[0]);
 	
 		// フィールドを描画する
 		drawField();
@@ -172,21 +187,13 @@ int main() {
 		ch = getch();
 
 		// テトリミノを取り除く
-		unsetTetrimino(FALL_BASE_X + x, FALL_BASE_Y + y, tetriminos[0]);
+		unsetTetrimino(FALL_BASE_X + currentTetriminoPositionX, FALL_BASE_Y + currentTetriminoPositionY, tetriminos[0]);
 
 		// テトリミノを落とす
-		y += 1;
-		// テトリミノを動かす
-		switch (ch) {
-			// 右移動キー
-			case 'l':
-				x += 1;
-				break;
-			// 左移動キー
-			case 'h':
-				x -= 1;
-				break;
-		}
+		currentTetriminoPositionY += 1;
+
+		// プレイヤー操作の反映
+		playerOperate(ch);
 	}
 
 	// 画面を終了
