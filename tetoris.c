@@ -1,4 +1,5 @@
 #include <ncurses.h>
+#include <unistd.h>
 
 // フィールドの高さ(床含む)
 #define FIELD_HEIGHT (21)
@@ -118,6 +119,10 @@ void drawField() {
 			if (playField[h][w] == CONTROL) {
 				mvprintw(h, w, "@");
 			}
+			// 無
+			if (playField[h][w] == FREE) {
+				mvprintw(h, w, " ");
+			}
 		}
 	}
 }
@@ -126,7 +131,20 @@ void drawField() {
 void setTetrimino(int baseX, int baseY, int setBuf[TETRIMINO_HEIGHT][TETRIMINO_WIDTH]) {
 	for (int h = 0; h < TETRIMINO_HEIGHT; h++) {
 		for (int w = 0; w < TETRIMINO_WIDTH; w++) {
-			playField[baseY + h][baseX + w] = setBuf[h][w];
+			if (setBuf[h][w] == CONTROL) {
+				playField[baseY + h][baseX + w] = setBuf[h][w];
+			}
+		}
+	}
+}
+
+// テトリミノをフィールドから取り除く
+void unsetTetrimino(int baseX, int baseY, int setBuf[TETRIMINO_HEIGHT][TETRIMINO_WIDTH]) {
+	for (int h = 0; h < TETRIMINO_HEIGHT; h++) {
+		for (int w = 0; w < TETRIMINO_WIDTH; w++) {
+			if (setBuf[h][w] == CONTROL) {
+				playField[baseY + h][baseX + w] = FREE;
+			}
 		}
 	}
 }
@@ -137,6 +155,18 @@ int main() {
 
 	// テトリミノを設定する
 	setTetrimino(FALL_BASE_X, FALL_BASE_Y, tetriminos[0]);
+
+	// フィールドを描画する
+	drawField();
+
+	// 入力待ち
+	getch();
+
+	// テトリミノを取り除く
+	unsetTetrimino(FALL_BASE_X, FALL_BASE_Y, tetriminos[0]);
+
+	// テトリミノを設定する
+	setTetrimino(FALL_BASE_X, FALL_BASE_Y + 1, tetriminos[0]);
 
 	// フィールドを描画する
 	drawField();
