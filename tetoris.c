@@ -153,28 +153,27 @@ int main() {
 	// 画面を初期化
 	initscr();
 
-	// テトリミノを設定する
-	setTetrimino(FALL_BASE_X, FALL_BASE_Y, tetriminos[0]);
+	// テトリミノのフィールド上の基準位置
+	int x = 0;
+	int y = 0;
 
-	// フィールドを描画する
-	drawField();
-
-	// 入力待ち
-	getch();
-
-	// テトリミノを取り除く
-	unsetTetrimino(FALL_BASE_X, FALL_BASE_Y, tetriminos[0]);
-
-	// テトリミノを設定する
-	setTetrimino(FALL_BASE_X, FALL_BASE_Y + 1, tetriminos[0]);
-
-	// フィールドを描画する
-	drawField();
-
-	// qが入力されるまで無限に待つ
+	// 入力
 	int ch = 0;
 	while (ch != 'q') {
+		// テトリミノを設定する
+		setTetrimino(FALL_BASE_X + x, FALL_BASE_Y + y, tetriminos[0]);
+	
+		// フィールドを描画する
+		drawField();
+
+		// 入力待ち
 		ch = getch();
+
+		// テトリミノを取り除く
+		unsetTetrimino(FALL_BASE_X + x, FALL_BASE_Y + y, tetriminos[0]);
+
+		// テトリミノを落とす
+		y += 1;
 	}
 
 	// 画面を終了
