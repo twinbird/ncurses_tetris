@@ -1,5 +1,6 @@
 #include <ncurses.h>
 #include <unistd.h>
+#include <time.h>
 
 // フィールドの高さ(床含む)
 #define FIELD_HEIGHT (21)
@@ -16,6 +17,11 @@
 // 落下位置
 #define FALL_BASE_X (1)
 #define FALL_BASE_Y (0)
+
+// キー入力のタイムアウト時間(ミリ秒)
+#define KEYINPUT_TIMEOUT_TIME (20)
+// ブロック落下の間隔時間(秒)
+#define FALL_TIME (1.0)
 
 // ブロックの種類
 enum blockType {
@@ -106,6 +112,17 @@ int tetriminos[TETRIMINO_KINDS][TETRIMINO_HEIGHT][TETRIMINO_WIDTH] = {
 int currentTetriminoPositionX = 0;
 int currentTetriminoPositionY = 0;
 
+// アプリケーションの状態
+enum appState {
+	// 実行中
+	RUNNING,
+	// 終了待ち
+	EXIT_WAIT
+};
+
+// アプリケーションの状態
+int currentAppState = 0;
+
 // フィールドを描画する
 void drawField() {
 	int h, w;
@@ -157,13 +174,17 @@ void unsetTetrimino(int baseX, int baseY, int setBuf[TETRIMINO_HEIGHT][TETRIMINO
 void playerOperate(int ch) {
 	// テトリミノを動かす
 	switch (ch) {
-		// 右移動キー
 		case 'l':
+			// 右移動キー
 			currentTetriminoPositionX += 1;
 			break;
-		// 左移動キー
 		case 'h':
+			// 左移動キー
 			currentTetriminoPositionX -= 1;
+			break;
+		case 'q':
+			// 終了キー
+			currentAppState = EXIT_WAIT;
 			break;
 	}
 }
@@ -171,29 +192,41 @@ void playerOperate(int ch) {
 int main() {
 	// 画面を初期化
 	initscr();
-	// キー入力を1000ミリ秒で切り上げる(タイムアウトする)
-	timeout(1000);
+	// キー入力を切り上げる時間を設定
+	timeout(KEYINPUT_TIMEOUT_TIME);
 
 	// 入力
 	int ch = 0;
-	while (ch != 'q') {
-		// テトリミノを設定する
-		setTetrimino(FALL_BASE_X + currentTetriminoPositionX, FALL_BASE_Y + currentTetriminoPositionY, tetriminos[0]);
+	while (currentAppState == RUNNING) {
+		// 現在時刻を取得して保存
+		clock_t baseTime = time(NULL);
+
+		while (1) {
+			// テトリミノを設定する
+			setTetrimino(FALL_BASE_X + currentTetriminoPositionX, FALL_BASE_Y + currentTetriminoPositionY, tetriminos[0]);
+		
+			// フィールドを描画する
+			drawField();
 	
-		// フィールドを描画する
-		drawField();
+			// 入力待ち
+			ch = getch();
+	
+			// テトリミノを取り除く
+			unsetTetrimino(FALL_BASE_X + currentTetriminoPositionX, FALL_BASE_Y + currentTetriminoPositionY, tetriminos[0]);
+	
+			// プレイヤー操作の反映
+			playerOperate(ch);
 
-		// 入力待ち
-		ch = getch();
-
-		// テトリミノを取り除く
-		unsetTetrimino(FALL_BASE_X + currentTetriminoPositionX, FALL_BASE_Y + currentTetriminoPositionY, tetriminos[0]);
+			// 現在時刻が保存した時刻と比較してブロック落下の間隔時間を超えていない限り繰り返し
+			clock_t currentTime = time(NULL);
+			double diff = difftime(currentTime, baseTime);
+			if (diff >= FALL_TIME) {
+				break;
+			}
+		}
 
 		// テトリミノを落とす
 		currentTetriminoPositionY += 1;
-
-		// プレイヤー操作の反映
-		playerOperate(ch);
 	}
 
 	// 画面を終了
