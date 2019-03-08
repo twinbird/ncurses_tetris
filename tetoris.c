@@ -122,16 +122,21 @@ void drawField() {
 	}
 }
 
+// テトリミノをフィールドへ設定する
+void setTetrimino(int baseX, int baseY, int setBuf[TETRIMINO_HEIGHT][TETRIMINO_WIDTH]) {
+	for (int h = 0; h < TETRIMINO_HEIGHT; h++) {
+		for (int w = 0; w < TETRIMINO_WIDTH; w++) {
+			playField[baseY + h][baseX + w] = setBuf[h][w];
+		}
+	}
+}
+
 int main() {
 	// 画面を初期化
 	initscr();
 
-	// とりあえずブロックを描いてみる
-	for (int i = 0; i < TETRIMINO_HEIGHT; i++) {
-		for (int k = 0; k < TETRIMINO_WIDTH; k++) {
-			playField[FALL_BASE_Y + i][FALL_BASE_X + k] = tetriminos[0][i][k];
-		}
-	}
+	// テトリミノを設定する
+	setTetrimino(FALL_BASE_X, FALL_BASE_Y, tetriminos[0]);
 
 	// フィールドを描画する
 	drawField();
