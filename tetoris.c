@@ -249,6 +249,16 @@ void playerOperate(int ch) {
 			// 左移動キー
 			moveInControlTetrimino(currentTetriminoPositionX - 1, currentTetriminoPositionY);
 			break;
+		case 'j':
+			// 下移動キー
+			moveInControlTetrimino(currentTetriminoPositionX, currentTetriminoPositionY + 1);
+			break;
+		case 'k':
+			// 高速落下移動キー
+			while (moveInControlTetrimino(currentTetriminoPositionX, currentTetriminoPositionY + 1)) {
+				;
+			}
+			break;
 		case 'r':
 			// 回転キー
 			rotateInControlTetrimino(1);
