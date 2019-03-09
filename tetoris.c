@@ -2,6 +2,7 @@
 #include <unistd.h>
 #include <time.h>
 #include <assert.h>
+#include <stdlib.h>
 
 // フィールドの高さ(床含む)
 #define FIELD_HEIGHT (21)
@@ -280,8 +281,11 @@ int main() {
 	currentTetriminoPositionX = FALL_BASE_X;
 	currentTetriminoPositionY = FALL_BASE_Y;
 
+	// テトリミノ生成用の乱数の種
+	srand((unsigned)time(NULL));
+
 	// 制御中のテトリミノを設定
-	setNewControlTetrimino(1);
+	setNewControlTetrimino(rand() % TETRIMINO_KINDS);
 
 	// 入力
 	int ch = 0;
