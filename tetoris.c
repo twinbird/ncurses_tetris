@@ -125,7 +125,7 @@ enum appState {
 };
 
 // アプリケーションの状態
-int currentAppState = 0;
+int currentAppState = RUNNING;
 
 // フィールドを描画する
 void drawField() {
