@@ -11,7 +11,7 @@
 // テトリミノの最大の高さ
 #define TETRIMINO_HEIGHT (4)
 // テトリミノの最大の幅
-#define TETRIMINO_WIDTH (3)
+#define TETRIMINO_WIDTH (4)
 // テトリミノの種類数
 #define TETRIMINO_KINDS (7)
 
@@ -66,46 +66,46 @@ int playField[FIELD_HEIGHT][FIELD_WIDTH] = {
 // テトリミノ
 int tetriminos[TETRIMINO_KINDS][TETRIMINO_HEIGHT][TETRIMINO_WIDTH] = {
 	{
-		{4,0,0},
-		{4,0,0},
-		{4,0,0},
-		{4,0,0}
+		{4,0,0,0},
+		{4,0,0,0},
+		{4,0,0,0},
+		{4,0,0,0}
 	},
 	{
-		{0,4,0},
-		{4,4,4},
-		{0,0,0},
-		{0,0,0}
+		{0,4,0,0},
+		{4,4,4,0},
+		{0,0,0,0},
+		{0,0,0,0}
 	},
 	{
-		{4,4,0},
-		{0,4,4},
-		{0,0,0},
-		{0,0,0}
+		{4,4,0,0},
+		{0,4,4,0},
+		{0,0,0,0},
+		{0,0,0,0}
 	},
 	{
-		{0,4,4},
-		{4,4,0},
-		{0,0,0},
-		{0,0,0}
+		{0,4,4,0},
+		{4,4,0,0},
+		{0,0,0,0},
+		{0,0,0,0}
 	},
 	{
-		{4,4,0},
-		{4,4,0},
-		{0,0,0},
-		{0,0,0}
+		{4,4,0,0},
+		{4,4,0,0},
+		{0,0,0,0},
+		{0,0,0,0}
 	},
 	{
-		{4,4,0},
-		{4,0,0},
-		{4,0,0},
-		{0,0,0}
+		{4,4,0,0},
+		{4,0,0,0},
+		{4,0,0,0},
+		{0,0,0,0}
 	},
 	{
-		{4,4,0},
-		{0,4,0},
-		{0,4,0},
-		{0,0,0}
+		{4,4,0,0},
+		{0,4,0,0},
+		{0,4,0,0},
+		{0,0,0,0}
 	}
 };
 
@@ -197,6 +197,38 @@ void moveInControlTetrimino(int baseX, int baseY) {
 	}
 }
 
+// 制御中のテトリミノを回転する
+// isClockwise: 1なら時計回り, 0なら反時計回り
+void rotateInControlTetrimino(int isClockwise) {
+	int buf[TETRIMINO_HEIGHT][TETRIMINO_WIDTH];
+	// 回転後のテトリミノの配置を一時バッファへ入れる
+	if (isClockwise == 1) {
+		// 時計回り
+		for (int h = 0; h < TETRIMINO_HEIGHT; h++) {
+			for (int w = 0; w < TETRIMINO_WIDTH; w++) {
+				buf[h][w] = inControlTetrimino[(TETRIMINO_HEIGHT-1)-w][h];
+			}
+		}
+	} else {
+		// 反時計回り
+		for (int h = 0; h < TETRIMINO_HEIGHT; h++) {
+			for (int w = 0; w < TETRIMINO_WIDTH; w++) {
+				buf[h][w] = inControlTetrimino[w][(TETRIMINO_WIDTH-1)-h];
+			}
+		}
+	}
+	// 衝突しなければバッファを置き換え
+	int baseX = currentTetriminoPositionX;
+	int baseY = currentTetriminoPositionY;
+	if (isCollision(baseX, baseY, buf) == 0) {
+		for (int h = 0; h < TETRIMINO_HEIGHT; h++) {
+			for (int w = 0; w < TETRIMINO_WIDTH; w++) {
+				inControlTetrimino[h][w] = buf[h][w];
+			}
+		}
+	}
+}
+
 // キー入力に応じてプレイヤー操作を行う
 void playerOperate(int ch) {
 	// テトリミノを動かす
@@ -208,6 +240,14 @@ void playerOperate(int ch) {
 		case 'h':
 			// 左移動キー
 			moveInControlTetrimino(currentTetriminoPositionX - 1, currentTetriminoPositionY);
+			break;
+		case 'r':
+			// 回転キー
+			rotateInControlTetrimino(1);
+			break;
+		case 'e':
+			// 逆回転キー
+			rotateInControlTetrimino(0);
 			break;
 		case 'q':
 			// 終了キー
@@ -237,7 +277,7 @@ int main() {
 	currentTetriminoPositionY = FALL_BASE_Y;
 
 	// 制御中のテトリミノを設定
-	setNewControlTetrimino(0);
+	setNewControlTetrimino(1);
 
 	// 入力
 	int ch = 0;
