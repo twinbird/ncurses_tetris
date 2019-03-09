@@ -267,7 +267,13 @@ void setNewControlTetrimino(int kind) {
 	}
 }
 
-int main() {
+// 新しいテトリミノをランダムに選択し, 制御中バッファに設定する
+void generateTetrimino() {
+	setNewControlTetrimino(rand() % TETRIMINO_KINDS);
+}
+
+// アプリケーションの初期化
+void initializeApp() {
 	// 画面を初期化
 	initscr();
 	// 入力エコーを無効
@@ -281,11 +287,16 @@ int main() {
 	currentTetriminoPositionX = FALL_BASE_X;
 	currentTetriminoPositionY = FALL_BASE_Y;
 
-	// テトリミノ生成用の乱数の種
+	// テトリミノ生成用の乱数の種を用意
 	srand((unsigned)time(NULL));
 
-	// 制御中のテトリミノを設定
-	setNewControlTetrimino(rand() % TETRIMINO_KINDS);
+	// 最初のテトリミノを生成
+	generateTetrimino();
+}
+
+int main() {
+	// アプリケーションの初期化
+	initializeApp();
 
 	// 入力
 	int ch = 0;
