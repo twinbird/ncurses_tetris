@@ -269,6 +269,10 @@ void setNewControlTetrimino(int kind) {
 int main() {
 	// 画面を初期化
 	initscr();
+	// 入力エコーを無効
+	noecho();
+	// 入力バッファリングを無効
+	cbreak();
 	// キー入力を切り上げる時間を設定
 	timeout(KEYINPUT_TIMEOUT_TIME);
 
