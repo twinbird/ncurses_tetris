@@ -188,21 +188,26 @@ int isCollision(int baseX, int baseY, int setBuf[TETRIMINO_HEIGHT][TETRIMINO_WID
 	return 0;
 }
 
+// 制御中のテトリミノを移動する
+void moveInControlTetrimino(int baseX, int baseY) {
+	// 衝突しなければ座標を変更
+	if (isCollision(baseX, baseY, inControlTetrimino) == 0) {
+		currentTetriminoPositionX = baseX;
+		currentTetriminoPositionY = baseY;
+	}
+}
+
 // キー入力に応じてプレイヤー操作を行う
 void playerOperate(int ch) {
 	// テトリミノを動かす
 	switch (ch) {
 		case 'l':
 			// 右移動キー
-			if (isCollision(currentTetriminoPositionX + 1, currentTetriminoPositionY, inControlTetrimino) == 0) {
-				currentTetriminoPositionX += 1;
-			}
+			moveInControlTetrimino(currentTetriminoPositionX + 1, currentTetriminoPositionY);
 			break;
 		case 'h':
 			// 左移動キー
-			if (isCollision(currentTetriminoPositionX - 1, currentTetriminoPositionY, inControlTetrimino) == 0) {
-				currentTetriminoPositionX -= 1;
-			}
+			moveInControlTetrimino(currentTetriminoPositionX - 1, currentTetriminoPositionY);
 			break;
 		case 'q':
 			// 終了キー
@@ -265,9 +270,7 @@ int main() {
 		}
 
 		// テトリミノを落とす
-		if (isCollision(currentTetriminoPositionX, currentTetriminoPositionY + 1, inControlTetrimino) == 0) {
-			currentTetriminoPositionY += 1;
-		}
+		moveInControlTetrimino(currentTetriminoPositionX, currentTetriminoPositionY + 1);
 	}
 
 	// 画面を終了
