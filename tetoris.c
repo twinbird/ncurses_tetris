@@ -141,9 +141,13 @@ void drawField() {
 			if (playField[h][w] == FLOOR) {
 				mvprintw(h, w, "=");
 			}
-			// ブロック
+			// 操作中のブロック
 			if (playField[h][w] == CONTROL) {
 				mvprintw(h, w, "@");
+			}
+			// 固定ブロック
+			if (playField[h][w] == FIX) {
+				mvprintw(h, w, "#");
 			}
 			// 無
 			if (playField[h][w] == FREE) {
@@ -190,12 +194,15 @@ int isCollision(int baseX, int baseY, int setBuf[TETRIMINO_HEIGHT][TETRIMINO_WID
 }
 
 // 制御中のテトリミノを移動する
-void moveInControlTetrimino(int baseX, int baseY) {
+// 移動できなければ0を返す
+int moveInControlTetrimino(int baseX, int baseY) {
 	// 衝突しなければ座標を変更
 	if (isCollision(baseX, baseY, inControlTetrimino) == 0) {
 		currentTetriminoPositionX = baseX;
 		currentTetriminoPositionY = baseY;
+		return 1;
 	}
+	return 0;
 }
 
 // 制御中のテトリミノを回転する
@@ -272,6 +279,25 @@ void generateTetrimino() {
 	setNewControlTetrimino(rand() % TETRIMINO_KINDS);
 }
 
+// 現在操作中のテトリミノを固定して、次のテトリミノを用意する
+void fixAndGenerateTetrimino() {
+	// 操作中のテトリミノをフィールドバッファへ設定する
+	setTetrimino(currentTetriminoPositionX, currentTetriminoPositionY, inControlTetrimino);
+
+	// フィールドバッファの操作中テトリミノを固定
+	for (int h = 0; h < TETRIMINO_HEIGHT; h++) {
+		for (int w = 0; w < TETRIMINO_WIDTH; w++) {
+			if (playField[currentTetriminoPositionY+h][currentTetriminoPositionX+w] == CONTROL) {
+				playField[currentTetriminoPositionY+h][currentTetriminoPositionX+w] = FIX;
+			}
+		}
+	}
+	// 次のテトリミノを用意
+	generateTetrimino();
+	currentTetriminoPositionX = FALL_BASE_X;
+	currentTetriminoPositionY = FALL_BASE_Y;
+}
+
 // アプリケーションの初期化
 void initializeApp() {
 	// 画面を初期化
@@ -329,7 +355,11 @@ int main() {
 		}
 
 		// テトリミノを落とす
-		moveInControlTetrimino(currentTetriminoPositionX, currentTetriminoPositionY + 1);
+		int is_fallen = moveInControlTetrimino(currentTetriminoPositionX, currentTetriminoPositionY + 1);
+		// 落ちなければ固定して次のテトリミノを用意する
+		if (!is_fallen) {
+			fixAndGenerateTetrimino();
+		}
 	}
 
 	// 画面を終了
