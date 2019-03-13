@@ -281,7 +281,7 @@ void playerOperate(int ch) {
 
 // 新しいテトリミノを制御中バッファに設定する
 void setNewControlTetrimino(int kind) {
-	assert(0 <= kind && kind <= TETRIMINO_KINDS);
+	assert(0 <= kind && kind < TETRIMINO_KINDS);
 	for (int h = 0; h < TETRIMINO_HEIGHT; h++) {
 		for (int w = 0; w < TETRIMINO_WIDTH; w++) {
 			inControlTetrimino[h][w] = tetriminos[kind][h][w];
