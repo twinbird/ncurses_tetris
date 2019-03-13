@@ -117,6 +117,9 @@ int inControlTetrimino[TETRIMINO_HEIGHT][TETRIMINO_WIDTH];
 int currentTetriminoPositionX = 0;
 int currentTetriminoPositionY = 0;
 
+// 現在のスコア
+int currentGameScore = 0;
+
 // アプリケーションの状態
 enum appState {
 	// 実行中
@@ -346,8 +349,15 @@ void eraseCompleteLine() {
 		if (isCompleteLine(h)) {
 			eraseLine(h);
 			compaction(h);
+			// 安直に1行消すと10ptにする
+			currentGameScore += 10;
 		}
 	}
+}
+
+// スコアを表示
+void showScore() {
+	mvprintw(1, FIELD_WIDTH + 1, "SCORE: %d", currentGameScore);
 }
 
 // アプリケーションの初期化
@@ -366,6 +376,9 @@ void initializeApp() {
 
 	// 最初のテトリミノを生成
 	generateTetrimino(FALL_BASE_X, FALL_BASE_Y);
+
+	// ゲームスコア欄を表示
+	showScore();
 }
 
 // ゲームオーバー画面を表示
@@ -424,6 +437,8 @@ int main() {
 				currentAppState = GAME_OVER;
 			}
 		}
+		// ゲームスコアを更新
+		showScore();
 	}
 
 	// ゲームオーバー画面を表示
