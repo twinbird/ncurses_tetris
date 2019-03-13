@@ -363,6 +363,7 @@ void showOperationGuide() {
 	mvprintw(6, FIELD_WIDTH + 1, "l: move right");
 	mvprintw(7, FIELD_WIDTH + 1, "j: move down");
 	mvprintw(8, FIELD_WIDTH + 1, "k: fast move down");
+	mvprintw(9, FIELD_WIDTH + 1, "q: quit game");
 }
 
 // スコアを表示
