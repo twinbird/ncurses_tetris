@@ -122,7 +122,9 @@ enum appState {
 	// 実行中
 	RUNNING,
 	// 終了待ち
-	EXIT_WAIT
+	EXIT_WAIT,
+	// ゲームオーバー
+	GAME_OVER,
 };
 
 // アプリケーションの状態
@@ -366,6 +368,16 @@ void initializeApp() {
 	generateTetrimino(FALL_BASE_X, FALL_BASE_Y);
 }
 
+// ゲームオーバー画面を表示
+void showGameOverScreen() {
+	// ゲームオーバー画面を表示
+	mvprintw(0, FIELD_WIDTH + 1, "GAME OVER");
+	// ブロッキングモードにしてキー入力まで待つ
+	timeout(-1);
+	// キー入力待ちに入る
+	getch();
+}
+
 int main() {
 	// アプリケーションの初期化
 	initializeApp();
@@ -407,7 +419,16 @@ int main() {
 			fixTetrimino();
 			eraseCompleteLine();
 			generateTetrimino(FALL_BASE_X, FALL_BASE_Y);
+			// 次のテトリミノが配置できなければゲームオーバー
+			if (isCollision(FALL_BASE_X, FALL_BASE_Y, inControlTetrimino)) {
+				currentAppState = GAME_OVER;
+			}
 		}
+	}
+
+	// ゲームオーバー画面を表示
+	if (currentAppState == GAME_OVER) {
+		showGameOverScreen();
 	}
 
 	// 画面を終了
