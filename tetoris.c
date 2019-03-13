@@ -284,13 +284,15 @@ void setNewControlTetrimino(int kind) {
 	}
 }
 
-// 新しいテトリミノをランダムに選択し, 制御中バッファに設定する
-void generateTetrimino() {
+// 新しいテトリミノをランダムに作成し, 制御中バッファに設定する
+void generateTetrimino(int x, int y) {
+	currentTetriminoPositionX = x;
+	currentTetriminoPositionY = y;
 	setNewControlTetrimino(rand() % TETRIMINO_KINDS);
 }
 
 // 現在操作中のテトリミノを固定して、次のテトリミノを用意する
-void fixAndGenerateTetrimino() {
+void fixTetrimino() {
 	// 操作中のテトリミノをフィールドバッファへ設定する
 	setTetrimino(currentTetriminoPositionX, currentTetriminoPositionY, inControlTetrimino);
 
@@ -302,10 +304,48 @@ void fixAndGenerateTetrimino() {
 			}
 		}
 	}
-	// 次のテトリミノを用意
-	generateTetrimino();
-	currentTetriminoPositionX = FALL_BASE_X;
-	currentTetriminoPositionY = FALL_BASE_Y;
+}
+
+// 指定行が完成していれば1
+int isCompleteLine(int line) {
+	for (int w = 0; w < FIELD_WIDTH; w++) {
+		// 固定と壁以外が見つかった
+		if (playField[line][w] != FIX && playField[line][w] != WALL) {
+			return 0;
+		}
+	}
+	return 1;
+}
+
+// 指定行を消去する
+void eraseLine(int line) {
+	for (int w = 0; w < FIELD_WIDTH; w++) {
+		// 固定は削除(FREEへ変更)
+		if (playField[line][w] == FIX) {
+			playField[line][w] = FREE;
+		}
+	}
+}
+
+// 指定行より上の行を指定行まで下へ詰める
+void compaction(int line) {
+	for (int h = line; h > 0; h--) {
+		for (int w = 0; w < FIELD_WIDTH; w++) {
+			playField[h][w] = playField[h-1][w];
+		}
+	}
+	// 一番上はFREEで詰める
+	eraseLine(0);
+}
+
+// フィールド内の完成した行を消去する
+void eraseCompleteLine() {
+	for (int h = 0; h < FIELD_HEIGHT; h++) {
+		if (isCompleteLine(h)) {
+			eraseLine(h);
+			compaction(h);
+		}
+	}
 }
 
 // アプリケーションの初期化
@@ -319,15 +359,11 @@ void initializeApp() {
 	// キー入力を切り上げる時間を設定
 	timeout(KEYINPUT_TIMEOUT_TIME);
 
-	// テトリミノの初期位置を設定
-	currentTetriminoPositionX = FALL_BASE_X;
-	currentTetriminoPositionY = FALL_BASE_Y;
-
 	// テトリミノ生成用の乱数の種を用意
 	srand((unsigned)time(NULL));
 
 	// 最初のテトリミノを生成
-	generateTetrimino();
+	generateTetrimino(FALL_BASE_X, FALL_BASE_Y);
 }
 
 int main() {
@@ -366,9 +402,11 @@ int main() {
 
 		// テトリミノを落とす
 		int is_fallen = moveInControlTetrimino(currentTetriminoPositionX, currentTetriminoPositionY + 1);
-		// 落ちなければ固定して次のテトリミノを用意する
+		// 落ちなければ固定して, 行を消し, 次のテトリミノを用意する
 		if (!is_fallen) {
-			fixAndGenerateTetrimino();
+			fixTetrimino();
+			eraseCompleteLine();
+			generateTetrimino(FALL_BASE_X, FALL_BASE_Y);
 		}
 	}
 
