@@ -355,6 +355,16 @@ void eraseCompleteLine() {
 	}
 }
 
+// 操作ガイドを表示
+void showOperationGuide() {
+	mvprintw(3, FIELD_WIDTH + 1, "r: rotate clockwise");
+	mvprintw(4, FIELD_WIDTH + 1, "e: rotate counter-clockwise");
+	mvprintw(5, FIELD_WIDTH + 1, "h: move left");
+	mvprintw(6, FIELD_WIDTH + 1, "l: move right");
+	mvprintw(7, FIELD_WIDTH + 1, "j: move down");
+	mvprintw(8, FIELD_WIDTH + 1, "k: fast move down");
+}
+
 // スコアを表示
 void showScore() {
 	mvprintw(1, FIELD_WIDTH + 1, "SCORE: %d", currentGameScore);
@@ -379,6 +389,9 @@ void initializeApp() {
 
 	// ゲームスコア欄を表示
 	showScore();
+
+	// 操作ガイドを表示
+	showOperationGuide();
 }
 
 // ゲームオーバー画面を表示
