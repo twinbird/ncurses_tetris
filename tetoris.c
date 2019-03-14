@@ -3,6 +3,7 @@
 #include <time.h>
 #include <assert.h>
 #include <stdlib.h>
+#include <string.h>
 
 // フィールドの高さ(床含む)
 #define FIELD_HEIGHT (21)
@@ -24,6 +25,16 @@
 #define KEYINPUT_TIMEOUT_TIME (20)
 // ブロック落下の間隔時間(秒)
 #define FALL_TIME (1.0)
+
+// ブロックの色
+enum colorPair {
+	// フィールド境界の色
+	BOUNDARY_COLOR,
+	// コントロール中のブロックの色
+	IN_CONTROL_COLOR,
+	// 固定ブロックの色
+	FIX_COLOR
+};
 
 // ブロックの種類
 enum blockType {
@@ -133,6 +144,9 @@ enum appState {
 // アプリケーションの状態
 int currentAppState = RUNNING;
 
+// 色が使えるか
+int enableColor = 0;
+
 // フィールドを描画する
 void drawField() {
 	int h, w;
@@ -140,22 +154,41 @@ void drawField() {
 		for (w = 0; w < FIELD_WIDTH; w++) {
 			// 壁
 			if (playField[h][w] == WALL) {
+				if (enableColor) {
+					color_set(BOUNDARY_COLOR, NULL);
+				}
 				mvprintw(h, w, "|");
 			}
 			// 床
 			if (playField[h][w] == FLOOR) {
+				if (enableColor) {
+					color_set(BOUNDARY_COLOR, NULL);
+				}
 				mvprintw(h, w, "=");
 			}
 			// 操作中のブロック
 			if (playField[h][w] == CONTROL) {
-				mvprintw(h, w, "@");
+				if (enableColor) {
+					color_set(IN_CONTROL_COLOR, NULL);
+					mvprintw(h, w, " ");
+				} else {
+					mvprintw(h, w, "@");
+				}
 			}
 			// 固定ブロック
 			if (playField[h][w] == FIX) {
-				mvprintw(h, w, "#");
+				if (enableColor) {
+					color_set(FIX_COLOR, NULL);
+					mvprintw(h, w, " ");
+				} else {
+					mvprintw(h, w, "#");
+				}
 			}
 			// 無
 			if (playField[h][w] == FREE) {
+				if (enableColor) {
+					color_set(BOUNDARY_COLOR, NULL);
+				}
 				mvprintw(h, w, " ");
 			}
 		}
@@ -371,8 +404,27 @@ void showScore() {
 	mvprintw(1, FIELD_WIDTH + 1, "SCORE: %d", currentGameScore);
 }
 
+// 色ペアを初期化する
+void initializeColorPair() {
+	init_pair(BOUNDARY_COLOR, COLOR_BLACK, COLOR_WHITE);
+	init_pair(IN_CONTROL_COLOR, COLOR_BLACK, COLOR_BLUE);
+	init_pair(FIX_COLOR, COLOR_BLACK, COLOR_GREEN);
+}
+
+// 色設定の初期化
+void initializeColor(int useColor) {
+	// 色を有効化
+	start_color();
+	// 色ペアの初期化
+	initializeColorPair();
+	// 色使える?
+	if (useColor == 1 && has_colors() == TRUE) {
+		enableColor = 1;
+	}
+}
+
 // アプリケーションの初期化
-void initializeApp() {
+void initializeApp(int useColor) {
 	// 画面を初期化
 	initscr();
 	// 入力エコーを無効
@@ -381,6 +433,8 @@ void initializeApp() {
 	cbreak();
 	// キー入力を切り上げる時間を設定
 	timeout(KEYINPUT_TIMEOUT_TIME);
+	// 色設定の初期化
+	initializeColor(useColor);
 
 	// テトリミノ生成用の乱数の種を用意
 	srand((unsigned)time(NULL));
@@ -405,9 +459,15 @@ void showGameOverScreen() {
 	getch();
 }
 
-int main() {
+int main(int argc, char *argv[]) {
+	int useColor = 0;
+	if (argc == 2) {
+		if (strncmp(argv[1], "color", strlen("color")) == 0) {
+			useColor = 1;
+		}
+	}
 	// アプリケーションの初期化
-	initializeApp();
+	initializeApp(useColor);
 
 	// 入力
 	int ch = 0;
