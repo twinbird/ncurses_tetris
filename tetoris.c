@@ -153,6 +153,18 @@ int enableColor = 0;
 // 色を使うか
 int useColorDrawing = 0;
 
+// 引数のテトリミノバッファを枠外のボックスに描画(デバッグ用)
+void drawTetriminoBox(int buf[TETRIMINO_WIDTH][TETRIMINO_HEIGHT]) {
+	int drawBaseY = 11;
+	int drawBaseX = FIELD_WIDTH + 2;
+
+	for (int h = 0; h < TETRIMINO_HEIGHT; h++) {
+		for (int w = 0; w < TETRIMINO_WIDTH; w++) {
+			mvprintw(drawBaseY + h, drawBaseX + w, "%d", buf[h][w]);
+		}
+	}
+}
+
 // フィールドを描画する
 void drawField() {
 	int h, w;
@@ -252,20 +264,29 @@ int moveInControlTetrimino(int baseX, int baseY) {
 // 制御中のテトリミノを回転する
 // isClockwise: 1なら時計回り, 0なら反時計回り
 void rotateInControlTetrimino(int isClockwise) {
-	int buf[TETRIMINO_HEIGHT][TETRIMINO_WIDTH];
+	int buf[TETRIMINO_HEIGHT][TETRIMINO_WIDTH] = {};
+	
 	// 回転後のテトリミノの配置を一時バッファへ入れる
 	if (isClockwise == 1) {
 		// 時計回り
 		for (int h = 0; h < TETRIMINO_HEIGHT; h++) {
 			for (int w = 0; w < TETRIMINO_WIDTH; w++) {
-				buf[h][w] = inControlTetrimino[(TETRIMINO_HEIGHT-1)-w][h];
+				int pw = (TETRIMINO_HEIGHT-1)-w;
+				int ph = h;
+				assert(0 <= pw && pw < TETRIMINO_WIDTH);
+				assert(0 <= ph && ph < TETRIMINO_HEIGHT);
+				buf[h][w] = inControlTetrimino[pw][ph];
 			}
 		}
 	} else {
 		// 反時計回り
 		for (int h = 0; h < TETRIMINO_HEIGHT; h++) {
 			for (int w = 0; w < TETRIMINO_WIDTH; w++) {
-				buf[h][w] = inControlTetrimino[w][(TETRIMINO_WIDTH-1)-h];
+				int pw = w;
+				int ph = (TETRIMINO_WIDTH-1)-h;
+				assert(0 <= pw && pw < TETRIMINO_WIDTH);
+				assert(0 <= ph && ph < TETRIMINO_HEIGHT);
+				buf[h][w] = inControlTetrimino[pw][ph];
 			}
 		}
 	}
@@ -343,8 +364,18 @@ void fixTetrimino() {
 	// フィールドバッファの操作中テトリミノを固定
 	for (int h = 0; h < TETRIMINO_HEIGHT; h++) {
 		for (int w = 0; w < TETRIMINO_WIDTH; w++) {
-			if (playField[currentTetriminoPositionY+h][currentTetriminoPositionX+w] == CONTROL) {
-				playField[currentTetriminoPositionY+h][currentTetriminoPositionX+w] = FIX;
+			int ph = currentTetriminoPositionY + h;
+			int pw = currentTetriminoPositionX + w;
+
+			// 壁と床を考慮
+			if ((0 < ph && ph < FIELD_HEIGHT - 1) &&
+				(0 < pw && pw < FIELD_WIDTH - 1)) {
+				assert(ph < FIELD_HEIGHT - 1);
+				assert(0 < pw && pw < FIELD_WIDTH - 1);
+				// 制御中を固定に変換
+				if (playField[currentTetriminoPositionY+h][currentTetriminoPositionX+w] == CONTROL) {
+					playField[currentTetriminoPositionY+h][currentTetriminoPositionX+w] = FIX;
+				}
 			}
 		}
 	}
