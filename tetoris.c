@@ -147,6 +147,12 @@ int currentAppState = RUNNING;
 // 色が使えるか
 int enableColor = 0;
 
+// =========================
+// オプション用変数
+// =========================
+// 色を使うか
+int useColorDrawing = 0;
+
 // フィールドを描画する
 void drawField() {
 	int h, w;
@@ -412,19 +418,19 @@ void initializeColorPair() {
 }
 
 // 色設定の初期化
-void initializeColor(int useColor) {
+void initializeColor() {
 	// 色を有効化
 	start_color();
 	// 色ペアの初期化
 	initializeColorPair();
 	// 色使える?
-	if (useColor == 1 && has_colors() == TRUE) {
+	if (useColorDrawing == 1 && has_colors() == TRUE) {
 		enableColor = 1;
 	}
 }
 
 // アプリケーションの初期化
-void initializeApp(int useColor) {
+void initializeApp() {
 	// 画面を初期化
 	initscr();
 	// 入力エコーを無効
@@ -434,7 +440,7 @@ void initializeApp(int useColor) {
 	// キー入力を切り上げる時間を設定
 	timeout(KEYINPUT_TIMEOUT_TIME);
 	// 色設定の初期化
-	initializeColor(useColor);
+	initializeColor();
 
 	// テトリミノ生成用の乱数の種を用意
 	srand((unsigned)time(NULL));
@@ -459,16 +465,8 @@ void showGameOverScreen() {
 	getch();
 }
 
-int main(int argc, char *argv[]) {
-	int useColor = 0;
-	if (argc == 2) {
-		if (strncmp(argv[1], "color", strlen("color")) == 0) {
-			useColor = 1;
-		}
-	}
-	// アプリケーションの初期化
-	initializeApp(useColor);
-
+// ゲームのメインループ
+void gameLoop() {
 	// 入力
 	int ch = 0;
 	while (currentAppState == RUNNING) {
@@ -519,6 +517,26 @@ int main(int argc, char *argv[]) {
 	if (currentAppState == GAME_OVER) {
 		showGameOverScreen();
 	}
+}
+
+// オプションの解析と設定
+void parseOption(int argc, char *argv[]) {
+	if (argc == 2) {
+		if (strncmp(argv[1], "color", strlen("color")) == 0) {
+			useColorDrawing = 1;
+		}
+	}
+}
+
+int main(int argc, char *argv[]) {
+	// 表示オプションの設定
+	parseOption(argc, argv);
+
+	// アプリケーションの初期化
+	initializeApp();
+
+	// ゲームのメインループ
+	gameLoop();
 
 	// 画面を終了
 	endwin();
