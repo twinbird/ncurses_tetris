@@ -2,13 +2,14 @@
 
 A tetris clone in terminal.
 
-## build
+## build & execute
 
 ### Debian (ubuntu)
 
 ```
 $ sudo apt install libncurses5-dev
 $ make
+$ ./tetris color
 ```
 
 ### CentOS
@@ -16,10 +17,13 @@ $ make
 ```
 $ sudo yum install ncurses-devel
 $ make
+$ ./tetris color
 ```
 
 ### MacOS X
 
 ```
 $ make
+$ ./tetris color
 ```
+
