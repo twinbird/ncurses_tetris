@@ -271,7 +271,7 @@ void rotateInControlTetrimino(int isClockwise) {
 		// 時計回り
 		for (int h = 0; h < TETRIMINO_HEIGHT; h++) {
 			for (int w = 0; w < TETRIMINO_WIDTH; w++) {
-				int pw = (TETRIMINO_HEIGHT-1)-w;
+				int pw = (TETRIMINO_HEIGHT - 1) - w;
 				int ph = h;
 				assert(0 <= pw && pw < TETRIMINO_WIDTH);
 				assert(0 <= ph && ph < TETRIMINO_HEIGHT);
@@ -283,7 +283,7 @@ void rotateInControlTetrimino(int isClockwise) {
 		for (int h = 0; h < TETRIMINO_HEIGHT; h++) {
 			for (int w = 0; w < TETRIMINO_WIDTH; w++) {
 				int pw = w;
-				int ph = (TETRIMINO_WIDTH-1)-h;
+				int ph = (TETRIMINO_WIDTH - 1) - h;
 				assert(0 <= pw && pw < TETRIMINO_WIDTH);
 				assert(0 <= ph && ph < TETRIMINO_HEIGHT);
 				buf[h][w] = inControlTetrimino[pw][ph];
