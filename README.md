@@ -2,6 +2,8 @@
 
 A tetris clone in terminal.
 
+![result](https://github.com/twinbird/ncurses_tetris/blob/master/play.gif?raw=true)
+
 ## build & execute
 
 ### Debian (ubuntu)
