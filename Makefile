@@ -1,9 +1,9 @@
 CC=gcc
 FLAGS=-lncurses
 
-tetoris: tetoris.c
-	$(CC) $(FLAGS) tetoris.c -o tetoris
+tetoris: tetris.c
+	$(CC) $(FLAGS) tetris.c -o tetris
 
 .PHONY: clean
 clean:
-	rm -f tetoris
+	rm -f tetris
